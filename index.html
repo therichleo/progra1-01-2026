@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyLearn — Aprende Python Interactivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#21262d;--border:#30363d;
+  --blue:#58a6ff;--green:#3fb950;--yellow:#f6c90e;--red:#f85149;--purple:#bc8cff;--orange:#ffa657;
+  --text:#e6edf3;--muted:#8b949e;--card:#1c2128;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+
+/* ── HEADER ── */
+.header{position:sticky;top:0;z-index:100;background:rgba(13,17,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:16px;height:60px}
+.logo{font-size:1.3rem;font-weight:800;background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap}
+.xp-counter{margin-left:auto;background:linear-gradient(135deg,#f6c90e22,#f6c90e11);border:1px solid var(--yellow);border-radius:20px;padding:4px 14px;font-size:.85rem;font-weight:700;color:var(--yellow);white-space:nowrap}
+.progress-wrap{flex:1;max-width:300px}
+.progress-label{font-size:.7rem;color:var(--muted);margin-bottom:3px}
+.progress-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:3px;transition:width .5s ease;width:0%}
+
+/* ── LAYOUT ── */
+.layout{display:flex;min-height:calc(100vh - 60px)}
+
+/* ── SIDEBAR ── */
+.sidebar{width:240px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:20px 0;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto}
+.sidebar-title{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;padding:0 20px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;border-left:3px solid transparent;transition:all .2s;color:var(--muted);font-size:.875rem;text-decoration:none}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{border-left-color:var(--blue);background:rgba(88,166,255,.08);color:var(--blue)}
+.nav-item.done{color:var(--green)}
+.nav-item.done .nav-check{color:var(--green)}
+.nav-check{font-size:.75rem;margin-left:auto;opacity:.5}
+.nav-item.done .nav-check{opacity:1}
+
+/* ── MAIN ── */
+.main{flex:1;padding:32px;min-width:0}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#0d1b2a,#1a1033);border:1px solid var(--border);border-radius:16px;padding:48px 40px;margin-bottom:32px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(88,166,255,.12),transparent 60%),radial-gradient(ellipse at 70% 50%,rgba(188,140,255,.1),transparent 60%)}
+.hero h1{font-size:2.5rem;font-weight:800;background:linear-gradient(135deg,#fff,var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative}
+.hero p{color:var(--muted);margin-top:12px;font-size:1.05rem;position:relative}
+.hero-stats{display:flex;gap:24px;justify-content:center;margin-top:28px;position:relative}
+.stat-card{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:12px;padding:16px 24px;text-align:center}
+.stat-num{font-size:2rem;font-weight:800;color:var(--blue)}
+.stat-label{font-size:.75rem;color:var(--muted)}
+
+/* ── SECTIONS ── */
+.section{margin-bottom:40px}
+.section-header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.section-icon{font-size:2rem;width:56px;height:56px;background:var(--surface);border:1px solid var(--border);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.section-header h2{font-size:1.3rem;font-weight:700;color:var(--text)}
+.section-header p{font-size:.85rem;color:var(--muted);margin-top:2px}
+.xp-badge{margin-left:auto;background:rgba(246,201,14,.1);border:1px solid rgba(246,201,14,.3);color:var(--yellow);border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:700;white-space:nowrap;flex-shrink:0}
+.xp-badge.earned{background:rgba(63,185,80,.15);border-color:rgba(63,185,80,.4);color:var(--green)}
+
+/* ── THEORY BOX ── */
+.theory{background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.2);border-radius:12px;padding:20px;margin-bottom:20px}
+.theory h3{font-size:.85rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.theory p{font-size:.875rem;color:var(--muted);line-height:1.7}
+.theory code{background:rgba(88,166,255,.12);border:1px solid rgba(88,166,255,.2);border-radius:4px;padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--blue)}
+
+/* ── VISUAL DIAGRAM ── */
+.diagram{display:flex;gap:6px;align-items:center;margin:12px 0;flex-wrap:wrap}
+.list-cell{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 14px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.85rem;position:relative;transition:all .3s}
+.list-cell .idx{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:.65rem;color:var(--muted)}
+.list-cell:hover{border-color:var(--blue);background:rgba(88,166,255,.1);transform:translateY(-2px)}
+.dict-row{display:flex;align-items:center;gap:8px;margin:4px 0}
+.dict-key{background:rgba(188,140,255,.12);border:1px solid rgba(188,140,255,.3);border-radius:6px;padding:5px 10px;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--purple)}
+.dict-arrow{color:var(--muted);font-size:.8rem}
+.dict-val{background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.25);border-radius:6px;padding:5px 10px;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--green)}
+
+/* ── CHALLENGE CARD ── */
+.challenge{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .3s}
+.challenge.passed{border-color:var(--green)}
+.challenge.failed-anim{border-color:var(--red);animation:shake .4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.challenge-body{padding:24px}
+.challenge-body h3{font-size:1rem;font-weight:700;margin-bottom:8px}
+.challenge-body p{font-size:.875rem;color:var(--muted);margin-bottom:16px}
+
+/* ── EDITOR ── */
+.editor-wrap{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.editor-bar{background:var(--surface2);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:8px}
+.editor-dot{width:12px;height:12px;border-radius:50%}
+.dot-r{background:#f85149}.dot-y{background:#f6c90e}.dot-g{background:#3fb950}
+.editor-lang{font-size:.7rem;color:var(--muted);margin-left:8px;font-family:'JetBrains Mono',monospace}
+.editor-actions{margin-left:auto;display:flex;gap:8px}
+.btn{border:none;border-radius:7px;padding:6px 14px;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+.btn-run{background:var(--green);color:#000}
+.btn-run:hover{background:#4dcf61;transform:translateY(-1px)}
+.btn-run:active{transform:scale(.97)}
+.btn-hint{background:rgba(246,201,14,.15);color:var(--yellow);border:1px solid rgba(246,201,14,.3)}
+.btn-hint:hover{background:rgba(246,201,14,.25)}
+.btn-sol{background:rgba(139,148,158,.1);color:var(--muted);border:1px solid var(--border)}
+.btn-sol:hover{background:rgba(139,148,158,.2);color:var(--text)}
+.btn-reset{background:rgba(248,81,73,.1);color:var(--red);border:1px solid rgba(248,81,73,.3);font-size:.75rem;padding:4px 10px}
+
+textarea.editor{width:100%;min-height:180px;background:#0d1117;color:#e6edf3;font-family:'JetBrains Mono',monospace;font-size:.85rem;line-height:1.7;padding:16px;border:none;outline:none;resize:vertical;tab-size:4}
+
+/* ── OUTPUT ── */
+.output-wrap{margin-top:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.output-bar{background:var(--surface2);border-bottom:1px solid var(--border);padding:6px 14px;font-size:.7rem;color:var(--muted);display:flex;align-items:center;gap:8px}
+.output-dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
+.output-dot.running{background:var(--yellow);animation:pulse 1s infinite}
+.output-dot.ok{background:var(--green)}
+.output-dot.err{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.output-content{background:#0a0e14;padding:14px;font-family:'JetBrains Mono',monospace;font-size:.82rem;min-height:60px;max-height:220px;overflow-y:auto;white-space:pre-wrap;line-height:1.6}
+.out-err{color:var(--red)}
+
+/* ── STATUS BANNER ── */
+.status-banner{display:none;margin-top:12px;border-radius:10px;padding:14px 18px;font-weight:600;font-size:.875rem}
+.status-banner.pass{background:rgba(63,185,80,.12);border:1px solid rgba(63,185,80,.3);color:var(--green);display:flex;align-items:center;gap:10px}
+.status-banner.fail{background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.25);color:var(--red);display:flex;align-items:center;gap:10px}
+
+/* ── HINTS ── */
+.hints-wrap{margin-top:12px;display:none}
+.hint-item{background:rgba(246,201,14,.06);border:1px solid rgba(246,201,14,.15);border-radius:8px;padding:12px 16px;margin-top:8px;font-size:.85rem;color:#d4b862}
+.hint-item span{display:block;font-size:.7rem;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+
+/* ── SOLUTION ── */
+.solution-wrap{margin-top:12px;display:none}
+.solution-wrap pre{background:#0d1117;border:1px solid rgba(63,185,80,.2);border-radius:10px;padding:16px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.7}
+.solution-wrap code{color:#a5d6ff}
+
+/* ── CHART SECTION ── */
+.chart-controls{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.ctrl-group label{display:block;font-size:.75rem;color:var(--muted);margin-bottom:4px}
+.ctrl-group input,
+.ctrl-group select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 12px;color:var(--text);font-size:.85rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.ctrl-group input:focus,
+.ctrl-group select:focus{border-color:var(--blue)}
+.chart-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:12px}
+canvas#myChart{max-height:300px}
+
+/* ── CSV VISUALIZER ── */
+.csv-table{width:100%;border-collapse:collapse;font-size:.8rem;font-family:'JetBrains Mono',monospace;margin:12px 0}
+.csv-table th{background:var(--surface2);border:1px solid var(--border);padding:8px 12px;color:var(--blue);text-align:left}
+.csv-table td{border:1px solid var(--border);padding:7px 12px;color:var(--text)}
+.csv-table tr:hover td{background:rgba(88,166,255,.05)}
+
+/* ── COMPLETION SCREEN ── */
+.completion{display:none;background:linear-gradient(135deg,#0d1b2a,#1a1033);border:1px solid var(--green);border-radius:16px;padding:48px;text-align:center;margin-top:32px}
+.completion h2{font-size:2rem;font-weight:800;color:var(--green);margin-bottom:12px}
+.completion p{color:var(--muted)}
+.trophy{font-size:4rem;margin-bottom:16px;display:block;animation:bounce 1s ease infinite alternate}
+@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-10px)}}
+.final-xp{font-size:3rem;font-weight:800;color:var(--yellow);margin:16px 0}
+
+/* ── UTILS ── */
+.tag{display:inline-block;border-radius:5px;padding:2px 8px;font-size:.72rem;font-weight:600;font-family:'JetBrains Mono',monospace}
+.tag-blue{background:rgba(88,166,255,.15);color:var(--blue)}
+.tag-green{background:rgba(63,185,80,.12);color:var(--green)}
+.tag-purple{background:rgba(188,140,255,.12);color:var(--purple)}
+.tag-orange{background:rgba(255,166,87,.12);color:var(--orange)}
+.divider{height:1px;background:var(--border);margin:8px 0}
+kbd{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:.75rem}
+
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{padding:16px}
+  .hero h1{font-size:1.6rem}
+  .hero-stats{flex-direction:column;align-items:center}
+  .chart-controls{grid-template-columns:1fr}
+  .editor-actions{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">🐍 PyLearn</div>
+  
+  <!-- Nuevo encabezado de ayudante -->
+  <div style="margin-left: 20px; font-weight: 500; color: var(--muted); font-size: 0.9rem; border-left: 1px solid var(--border); padding-left: 20px;">
+    Leonardo Valdés - Ayudante de Catedra
+  </div>
+  
+  <div class="progress-wrap" style="margin-left: 20px;">
+    <div class="progress-label">Progreso total</div>
+    <div class="progress-bar"><div class="progress-fill" id="globalProgress"></div></div>
+  </div>
+  <div class="xp-counter" id="xpDisplay">⚡ 0 / 900 XP</div>
+</header>
+
+<div class="layout">
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-title">Módulos</div>
+  <a class="nav-item" href="#s1"><span>🔄</span> Ciclos <span class="nav-check" id="nc1">○</span></a>
+  <a class="nav-item" href="#s2"><span>📋</span> Listas <span class="nav-check" id="nc2">○</span></a>
+  <a class="nav-item" href="#s3"><span>⚙️</span> Funciones <span class="nav-check" id="nc3">○</span></a>
+  <a class="nav-item" href="#s4"><span>📚</span> Diccionarios <span class="nav-check" id="nc4">○</span></a>
+  <a class="nav-item" href="#s5"><span>🔷</span> Sets <span class="nav-check" id="nc5">○</span></a>
+  <a class="nav-item" href="#s6"><span>λ</span> Lambda & Map <span class="nav-check" id="nc6">○</span></a>
+  <a class="nav-item" href="#s7"><span>🗂️</span> Anidadas <span class="nav-check" id="nc7">○</span></a>
+  <a class="nav-item" href="#s8"><span>📄</span> CSV <span class="nav-check" id="nc8">○</span></a>
+  <a class="nav-item" href="#s9"><span>📊</span> Gráficos <span class="nav-check" id="nc9">○</span></a>
+  <a class="nav-item" href="#s10"><span>🧩</span> Comb. 1: Casino <span class="nav-check" id="nc10">○</span></a>
+  <a class="nav-item" href="#s11"><span>🚂</span> Comb. 2: Tren <span class="nav-check" id="nc11">○</span></a>
+  <a class="nav-item" href="#s12"><span>🏃</span> Comb. 3: Maratón <span class="nav-check" id="nc12">○</span></a>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Aprende Python Jugando</h1>
+  <p>Desafíos interactivos con ejecución real • Gana XP • Domina Python</p>
+  <div class="hero-stats">
+    <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">Desafíos</div></div>
+    <div class="stat-card"><div class="stat-num" id="heroXP">0</div><div class="stat-label">XP ganados</div></div>
+    <div class="stat-card"><div class="stat-num" id="heroCompleted">0</div><div class="stat-label">Completados</div></div>
+    
+  </div>
+</div>
+
+<!-- ═══════════════ S1: CICLOS ═══════════════ -->
+<div class="section" id="s1">
+  <div class="section-header">
+    <div class="section-icon">🔄</div>
+    <div><h2>Ciclos <span class="tag tag-blue">for</span> <span class="tag tag-blue">while</span></h2>
+    <p>Repite instrucciones con lógica controlada</p></div>
+    <div class="xp-badge" id="xpb1">+100 XP</div>
+  </div>
+
+  <div class="theory">
+    <h3>Concepto Clave</h3>
+    <p>Un <code>for</code> recorre un iterable (lista, rango). Un <code>while</code> repite mientras una condición sea verdadera. Usa <code>range(inicio, fin, paso)</code> para generar secuencias de números. El índice final <strong>no se incluye</strong>.</p>
+    <div style="margin-top:12px">
+      <div class="diagram" style="margin-top:12px">
+        <span style="font-size:.75rem;color:var(--muted);font-family:monospace">range(1,6):</span>
+        <div class="list-cell"><div class="idx">0</div>1</div>
+        <div class="list-cell"><div class="idx">1</div>2</div>
+        <div class="list-cell"><div class="idx">2</div>3</div>
+        <div class="list-cell"><div class="idx">3</div>4</div>
+        <div class="list-cell"><div class="idx">4</div>5</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="challenge" id="ch1">
+    <div class="challenge-body">
+      <h3>🎯 Desafío — Tabla de multiplicar del 7</h3>
+      <p>Imprime la tabla de multiplicar del 7 del 1 al 10 con el formato exacto:<br>
+      <kbd>7 x 1 = 7</kbd>&nbsp; <kbd>7 x 2 = 14</kbd>&nbsp; ... &nbsp;<kbd>7 x 10 = 70</kbd></p>
+      <div class="editor-wrap">
+        <div class="editor-bar">
+          <div class="editor-dot dot-r"></div><div class="editor-dot dot-y"></div><div class="editor-dot dot-g"></div>
+          <span class="editor-lang">Python — Desafío 1</span>
+          <div class="editor-actions">
+            <button class="btn btn-reset" onclick="resetEditor(1)">↺ Reset</button>
+            <button class="btn btn-hint" onclick="showHint(1)">💡 Pista</button>
+            <button class="btn btn-sol" onclick="showSol(1)">👁 Solución</button>
+            <button class="btn btn-run" onclick="runCode(1)">▶ Ejecutar</button>
+          </div>
+        </div>
+        <textarea class="editor" id="editor-1" spellcheck="false"># Escribe tu solución aquí
+# Usa un ciclo for con range()
+for i in range(1, 11):
+    # Completa esta línea
+    pass
+</textarea>
+      </div>
+      <div class="output-wrap">
+        <div class="output-bar"><div class="output-dot" id="dot-1"></div><span id="outLabel-1">Listo para ejecutar</span></div>
+        <div class="output-content" id="output-1">▸ Presiona "Ejecutar" para ver el resultado</div>
+      </div>
+      <div class="status-banner" id="status-1"></div>
+      <div class="hints-wrap" id="hints-1">
+        <div class="hint-item"><span>Pista 1</span>Dentro del <code>for</code>, usa <code>i</code> como multiplicador.</div>
+        <div class="hint-item"><span>Pista 2</span>Usa un f-string: <code>print(f"7 x {i} = {7*i}")</code></div>
+      </div>
+      <div class="solution-wrap" id="sol-1">
+        <pre><code>for i in range(1, 11):
+    print(f"7 x {i} = {7 * i}")</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ S2: LISTAS ═══════════════ -->
+<div class="section" id="s2">
+  <div class="section-header">
+    <div class="section-icon">📋</div>
+    <div><h2>Listas <span class="tag tag-green">list</span></h2>
+    <p>Almacena, modifica y analiza colecciones ordenadas</p></div>
+    <div class="xp-badge" id="xpb2">+100 XP</div>
+  </div>
+
+  <div class="theory">
+    <h3>Concepto Clave</h3>
+    <p>Las listas son <strong>mutables</strong> y ordenadas. Accede con <code>lista[i]</code> (índice 0). Usa índices negativos para el final: <code>lista[-1]</code> es el último. <strong>No uses</strong> <code>sum()</code> ni <code>max()</code> — calcula con acumuladores.</p>
+    <div class="diagram" style="margin-top:12px">
+      <div class="list-cell"><div class="idx">-5 / 0</div>6.5</div>
+      <div class="list-cell"><div class="idx">-4 / 1</div>4.2</div>
+      <div class="list-cell"><div class="idx">-3 / 2</div>5.8</div>
+      <div class="list-cell"><div class="idx">-2 / 3</div>6.9</div>
+      <div class="list-cell"><div class="idx">-1 / 4</div>3.7</div>
+    </div>
+  </div>
+
+  <div class="challenge" id="ch2">
+    <div class="challenge-body">
+      <h3>🎯 Desafío — Estadísticas sin funciones built-in</h3>
+      <p>Dada <code>notas = [6.5, 4.2, 5.8, 6.9, 3.7]</code>, calcula e imprime el <strong>promedio</strong>, el <strong>máximo</strong> y el <strong>mínimo</strong> SIN usar <code>sum()</code>, <code>max()</code> ni <code>min()</code>.<br>Formato esperado: <kbd>Promedio: 5.42</kbd> &nbsp;<kbd>Maximo: 6.9</kbd> &nbsp;<kbd>Minimo: 3.7</kbd></p>
+      <div class="editor-wrap">
+        <div class="editor-bar">
+          <div class="editor-dot dot-r"></div><div class="editor-dot dot-y"></div><div class="editor-dot dot-g"></div>
+          <span class="editor-lang">Python — Desafío 2</span>
+          <div class="editor-actions">
+            <button class="btn btn-reset" onclick="resetEditor(2)">↺ Reset</button>
+            <button class="btn btn-hint" onclick="showHint(2)">💡 Pista</button>
+            <button class="btn btn-sol" onclick="showSol(2)">👁 Solución</button>
+            <button class="btn btn-run" onclick="runCode(2)">▶ Ejecutar</button>
+          </div>
+        </div>
+        <textarea class="editor" id="editor-2" spellcheck="false">notas = [6.5, 4.2, 5.8, 6.9, 3.7]
+
+total = 0
+maximo = notas[0]
+minimo = notas[0]
+
+for nota in notas:
+    # Acumula la suma, actualiza maximo y minimo
+    pass
+
+# Calcula promedio y muestra resultados
+</textarea>
+      </div>
+      <div class="output-wrap">
+        <div class="output-bar"><div class="output-dot" id="dot-2"></div><span id="outLabel-2">Listo para ejecutar</span></div>
+        <div class="output-content" id="output-2">▸ Presiona "Ejecutar" para ver el resultado</div>
+      </div>
+      <div class="status-banner" id="status-2"></div>
+      <div class="hints-wrap" id="hints-2">
+        <div class="hint-item"><span>Pista 1</span>Usa <code>total = total + nota</code> dentro del for.</div>
+        <div class="hint-item"><span>Pista 2</span>Para el máximo: <code>if nota > maximo: maximo = nota</code></div>
+        <div class="hint-item"><span>Pista 3</span>El promedio es <code>total / len(notas)</code>. Imprime con <code>:.2f</code> para 2 decimales.</div>
+      </div>
+      <div class="solution-wrap" id="sol-2">
+        <pre><code>notas = [6.5, 4.2, 5.8, 6.9, 3.7]
+total = 0
+maximo = notas[0]
+minimo = notas[0]
+
+for nota in notas:
+    total = total + nota
+    if nota > maximo:
+        maximo = nota
+    if nota < minimo:
+        minimo = nota
+
+promedio = total / len(notas)
+print(f"Promedio: {promedio:.2f}")
+print(f"Maximo: {maximo}")
+print(f"Minimo: {minimo}")</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ S3: FUNCIONES ═══════════════ -->
+<div class="section" id="s3">
+  <div class="section-header">
+    <div class="section-icon">⚙️</div>
+    <div><h2>Funciones <span class="tag tag-purple">def</span> <span class="tag tag-purple">return</span></h2>
+    <p>Bloques reutilizables de código con parámetros y retorno</p></div>
+    <div class="xp-badge" id="xpb3">+100 XP</div>
+  </div>
+
+  <div class="theory">
+    <h3>Concepto Clave</h3>
+    <p>Una función encapsula lógica reutilizable. Define con <code>def nombre(params):</code> y retorna con <code>return valor</code>. Una función <strong>sin</strong> <code>return</code> devuelve <code>None</code>. Los parámetros son variables locales.</p>
+  </div>
+
+  <div class="challenge" id="ch3">
+    <div class="challenge-body">
+      <h3>🎯 Desafío — Función número primo</h3>
+      <p>Define la función <code>es_primo(n)</code> que retorne <code>True</code> si <code>n</code> es primo, <code>False</code> si no. Luego úsala para imprimir solo los primos de la lista <code>[2, 3, 4, 10, 13, 17, 20]</code>.<br>
+      Salida esperada: <kbd>2 es primo</kbd> <kbd>3 es primo</kbd> <kbd>13 es primo</kbd> <kbd>17 es primo</kbd></p>
+      <div class="editor-wrap">
+        <div class="editor-bar">
+          <div class="editor-dot dot-r"></div><div class="editor-dot dot-y"></div><div class="editor-dot dot-g"></div>
+          <span class="editor-lang">Python — Desafío 3</span>
+          <div class="editor-actions">
+            <button class="btn btn-reset" onclick="resetEditor(3)">↺ Reset</button>
+            <button class="btn btn-hint" onclick="showHint(3)">💡 Pista</button>
+            <button class="btn btn-sol" onclick="showSol(3)">👁 Solución</button>
+            <button class="btn btn-run" onclick="runCode(3)">▶ Ejecutar</button>
+          </div>
+        </div>
+        <textarea class="editor" id="editor-3" spellcheck="false">def es_primo(n):
+    if n < 2:
+        return False
+    # Completa: recorre desde 2 hasta n-1
+    # Si algún número divide a n, no es primo
+
+numeros = [2, 3, 4, 10, 13, 17, 20]
+for num in numeros:
+    if es_primo(num):
+        print(f"{num} es primo")
+</textarea>
+      </div>
+      <div class="output-wrap">
+        <div class="output-bar"><div class="output-dot" id="dot-3"></div><span id="outLabel-3">Listo para ejecutar</span></div>
+        <div class="output-content" id="output-3">▸ Presiona "Ejecutar" para ver el resultado</div>
+      </div>
+      <div class="status-banner" id="status-3"></div>
+      <div class="hints-wrap" id="hints-3">
+        <div class="hint-item"><span>Pista 1</span>Usa <code>for i in range(2, n):</code> para probar divisores.</div>
+        <div class="hint-item"><span>Pista 2</span>Si <code>n % i == 0</code>, el número tiene un divisor → no es primo → <code>return False</code>.</div>
+        <div class="hint-item"><span>Pista 3</span>Si el for termina sin encontrar divisor, <code>return True</code>.</div>
+      </div>
+      <div class="solution-wrap" id="sol-3">
+        <pre><code>def es_primo(n):
+    if n < 2:
+        return False
+    for i in range(2, n):
+        if n % i == 0:
+            return False
+    return True
+
+numeros = [2, 3, 4, 10, 13, 17, 20]
+for num in numeros:
+    if es_primo(num):
+        print(f"{num} es primo")</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ S4: DICCIONARIOS ═══════════════ -->
+<div class="section" id="s4">
+  <div class="section-header">
+    <div class="section-icon">📚</div>
+    <div><h2>Diccionarios <span class="tag tag-orange">dict</span></h2>
+    <p>Pares clave-valor para representar registros</p></div>
+    <div class="xp-badge" id="xpb4">+100 XP</div>
+  </div>
+
+  <div class="theory">
+    <h3>Concepto Clave</h3>
+    <p>Los diccionarios asocian claves únicas a valores. Accede con <code>d["clave"]</code> o usa <code>d.get("clave", default)</code> para evitar errores. Itera con <code>d.items()</code> para obtener pares clave-valor.</p>
+    <div style="margin-top:12px">
+      <div class="dict-row"><div class="dict-key">"nombre"</div><div class="dict-arrow">→</div><div class="dict-val">"Ana"</div></div>
+      <div class="dict-row"><div class="dict-key">"edad"</div><div class="dict-arrow">→</div><div class="dict-val">20</div></div>
+      <div class="dict-row"><div class="dict-key">"nota"</div><div class="dict-arrow">→</div><div class="dict-val">6.5</div></div>
+    </div>
+  </div>
+
+  <div class="challenge" id="ch4">
+    <div class="challenge-body">
+      <h3>🎯 Desafío — Inventario de productos</h3>
+      <p>Dado el inventario anidado, calcula el valor total de cada producto (<code>precio × stock</code>) e imprímelo. Formato: <kbd>manzana: $25000</kbd> <kbd>pera: $9000</kbd> <kbd>uva: $16000</kbd></p>
+      <div class="editor-wrap">
+        <div class="editor-bar">
+          <div class="editor-dot dot-r"></div><div class="editor-dot dot-y"></div><div class="editor-dot dot-g"></div>
+          <span class="editor-lang">Python — Desafío 4</span>
+          <div class="editor-actions">
+            <button class="btn btn-reset" onclick="resetEditor(4)">↺ Reset</button>
+            <button class="btn btn-hint" onclick="showHint(4)">💡 Pista</button>
+            <button class="btn btn-sol" onclick="showSol(4)">👁 Solución</button>
+            <button class="btn btn-run" onclick="runCode(4)">▶ Ejecutar</button>
+          </div>
+        </div>
+        <textarea class="editor" id="editor-4" spellcheck="false">inventario = {
+    "manzana": {"precio": 500,  "stock": 50},
+    "pera":    {"precio": 300,  "stock": 30},
+    "uva":     {"precio": 800,  "stock": 20},
+}
+
+for producto, datos in inventario.items():
+    # Calcula total y muestra el resultado
+    pass
+</textarea>
+      </div>
+      <div class="output-wrap">
+        <div class="output-bar"><div class="output-dot" id="dot-4"></div><span id="outLabel-4">Listo para ejecutar</span></div>
+        <div class="output-content" id="output-4">▸ Presiona "Ejecutar" para ver el resultado</div>
+      </div>
+      <div class="status-banner" id="status-4"></div>
+      <div class="hints-wrap" id="hints-4">
+        <div class="hint-item"><span>Pista 1</span><code>datos</code> es el diccionario interno. Accede con <code>datos["precio"]</code>.</div>
+        <div class="hint-item"><span>Pista 2</span><code>total = datos["precio"] * datos["stock"]</code></div>
+        <div class="hint-item"><span>Pista 3</span><code>print(f"{producto}: ${total}")</code></div>
+      </div>
+      <div class="solution-wrap" id="sol-4">
+        <pre><code>inventario = {
+    "manzana": {"precio": 500,  "stock": 50},
+    "pera":    {"precio": 300,  "stock": 30},
+    "uva":     {"precio": 800,  "stock": 20},
+}
+
+for producto, datos in inventario.items():
+    total = datos["precio"] * datos["stock"]
+    print(f"{producto}: ${total}")</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ S5: SETS ═══════════════ -->
+<div class="section" id="s5">
+  <div class="section-header">
+    <div class="section-icon">🔷</div>
+    <div><h2>Sets <span class="tag tag-blue">set</span></h2>
+    <p>Conjuntos sin duplicados con operaciones matemáticas</p></div>
+    <div class="xp-badge" id="xpb5">+100 XP</div>
+  </div>
+
+  <div class="theory">
+    <h3>Concepto Clave</h3>
+    <p>Un <code>set</code> es una colección <strong>sin duplicados</strong> y <strong>sin orden</strong>. Soporta operaciones de teoría de conjuntos: <code>A & B</code> (intersección), <code>A | B</code> (unión), <code>A - B</code> (diferencia).</p>
+  </div>
+
+  <div class="challenge" id="ch5">
+    <div class="challenge-body">
+      <h3>🎯 Desafío — Análisis de comunidades</h3>
+      <p>Encuentra quiénes usan <strong>ambos lenguajes</strong> y quiénes usan <strong>solo Python</strong>. Imprime el resultado usando <code>sorted()</code>.<br>
+      Esperado: <kbd>Ambos: ['Luis', 'Maria']</kbd> &nbsp;<kbd>Solo Python: ['Ana', 'Pedro']</kbd></p>
+      <div class="editor-wrap">
+        <div class="editor-bar">
+          <div class="editor-dot dot-r"></div><div class="editor-dot dot-y"></div><div class="editor-dot dot-g"></div>
+          <span class="editor-lang">Python — Desafío 5</span>
+          <div class="editor-actions">
+            <button class="btn btn-reset" onclick="resetEditor(5)">↺ Reset</button>
+            <button class="btn btn-hint" onclick="showHint(5)">💡 Pista</button>
+            <button class="btn btn-sol" onclick="showSol(5)">👁 Solución</button>
+            <button class="btn btn-run" onclick="runCode(5)">▶ Ejecutar</button>
+          </div>
+        </div>
+        <textarea class="editor" id="editor-5" spellcheck="false">python_devs = {"Ana", "Luis", "Pedro", "Maria"}
+java_devs   = {"Luis", "Carlos", "Maria", "Sofia"}
+
+# Calcula la intersección y la diferencia
+ambos       = # ???
+solo_python = # ???
+
+print(f"Ambos: {sorted(ambos)}")
+print(f"Solo Python: {sorted(solo_python)}")
+</textarea>
+      </div>
+      <div class="output-wrap">
+        <div class="output-bar"><div class="output-dot" id="dot-5"></div><span id="outLabel-5">Listo para ejecutar</span></div>
+        <div class="output-content" id="output-5">▸ Presiona "Ejecutar" para ver el resultado</div>
+      </div>
+      <div class="status-banner" id="status-5"></div>
+      <div class="hints-wrap" id="hints-5">
+        <div class="hint-item"><span>Pista 1</span>La intersección (elementos en ambos) usa el operador <code>&</code>.</div>
+        <div class="hint-item"><span>Pista 2</span>La diferencia (en Python pero no en Java) usa el operador <code>-</code>.</div>
+      </div>
+      <div class="solution-wrap" id="sol-5">
+        <pre><code>python_devs = {"Ana", "Luis", "Pedro", "Maria"}
+java_devs   = {"Luis", "Carlos", "Maria", "Sofia"}
+
+ambos       = python_devs & java_devs
+solo_python = python_devs - java_devs
+
+print(f"Ambos: {sorted(ambos)}")
+print(f"Solo Python: {sorted(solo_python)}")</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ S6: LAMBDA & MAP ═══════════════ -->
+<div class="section" id="s6">
+  <div class="section-header">
+    <div class="section-icon">λ</div>
+    <div><h2>Lambda & Map <span class="tag tag-purple">lambda</span> <span class="tag tag-purple">map</span></h2>
+    <p>Funciones anónimas para transformar datos en una línea</p></div>
+    <div class="xp-badge" id="xpb6">+100 XP</div>
+  </div>
+
+  <div class="theory">
+    <h3>Concepto Clave</h3>
+    <p>Una <code>lambda</code> es una función anónima de una expresión. <code>map(func, lista)</code> aplica <code>func</code> a cada elemento. Combínalos para transformar listas elegantemente: <code>list(map(lambda x: x*2, lista))</code>.</p>
+  </div>
+
+  <div class="challenge" id="ch6">
+    <div class="challenge-body">
+      <h3>🎯 Desafío — Precios con IVA</h3>
+      <p>Usa <code>lambda</code> y <code>map()</code> para convertir la lista de precios netos a precios con IVA (×1.19).<br>
+      Esperado: <kbd>1190</kbd> <kbd>2975</kbd> <kbd>595</kbd> <kbd>3570</kbd> <kbd>893</kbd> (redondeados, uno por línea)</p>
+      <div class="editor-wrap">
+        <div class="editor-bar">
+          <div class="editor-dot dot-r"></div><div class="editor-dot dot-y"></div><div class="editor-dot dot-g"></div>
+          <span class="editor-lang">Python — Desafío 6</span>
+          <div class="editor-actions">
+            <button class="btn btn-reset" onclick="resetEditor(6)">↺ Reset</button>
+            <button class="btn btn-hint" onclick="showHint(6)">💡 Pista</button>
+            <button class="btn btn-sol" onclick="showSol(6)">👁 Solución</button>
+            <button class="btn btn-run" onclick="runCode(6)">▶ Ejecutar</button>
+          </div>
+        </div>
+        <textarea class="editor" id="editor-6" spellcheck="false">precios = [1000, 2500, 500, 3000, 750]
+
+# Usa lambda y map() para aplicar IVA (x 1.19)
+con_iva = list(map(  ???  , precios))
+
+for p in con_iva:
+    print(round(p))
+</textarea>
+      </div>
+      <div class="output-wrap">
+        <div class="output-bar"><div class="output-dot" id="dot-6"></div><span id="outLabel-6">Listo para ejecutar</span></div>
+        <div class="output-content" id="output-6">▸ Presiona "Ejecutar" para ver el resultado</div>
+      </div>
+      <div class="status-banner" id="status-6"></div>
+      <div class="hints-wrap" id="hints-6">
+        <div class="hint-item"><span>Pista 1</span>La lambda debe recibir un precio <code>p</code> y devolver <code>p * 1.19</code>.</div>
+        <div class="hint-item"><span>Pista 2</span>Escribe: <code>lambda p: p * 1.19</code> dentro de <code>map()</code>.</div>
+      </div>
+      <div class="solution-wrap" id="sol-6">
+        <pre><code>precios = [1000, 2500, 500, 3000, 750]
+
+con_iva = list(map(lambda p: p * 1.19, precios))
+
+for p in con_iva:
+    print(round(p))</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ S7: ANIDADAS ═══════════════ -->
+<div class="section" id="s7">
+  <div class="section-header">
+    <div class="section-icon">🗂️</div>
+    <div><h2>Estructuras Anidadas <span class="tag tag-orange">list+dict</span></h2>
+    <p>Combinaciones de listas, diccionarios y tuplas</p></div>
+    <div class="xp-badge" id="xpb7">+100 XP</div>
+  </div>
+
+  <div class="theory">
+    <h3>Concepto Clave</h3>
+    <p>Una <strong>lista de diccionarios</strong> representa una tabla de registros. Accede por índice al registro y luego por clave al campo: <code>estudiantes[0]["nombre"]</code>. Itera con <code>for e in estudiantes:</code> y accede con <code>e["campo"]</code>.</p>
+  </div>
+
+  <div class="challenge" id="ch7">
+    <div class="challenge-body">
+      <h3>🎯 Desafío — Reporte de estudiantes</h3>
+      <p>Para cada estudiante calcula su promedio de notas e imprime si está Aprobado (≥ 4.0) o Reprobado.<br>
+      Formato: <kbd>Ana: 6.43 - Aprobado</kbd></p>
+      <div class="editor-wrap">
+        <div class="editor-bar">
+          <div class="editor-dot dot-r"></div><div class="editor-dot dot-y"></div><div class="editor-dot dot-g"></div>
+          <span class="editor-lang">Python — Desafío 7</span>
+          <div class="editor-actions">
+            <button class="btn btn-reset" onclick="resetEditor(7)">↺ Reset</button>
+            <button class="btn btn-hint" onclick="showHint(7)">💡 Pista</button>
+            <button class="btn btn-sol" onclick="showSol(7)">👁 Solución</button>
+            <button class="btn btn-run" onclick="runCode(7)">▶ Ejecutar</button>
+          </div>
+        </div>
+        <textarea class="editor" id="editor-7" spellcheck="false">estudiantes = [
+    {"nombre": "Ana",   "notas": [6.5, 5.8, 7.0]},
+    {"nombre": "Luis",  "notas": [4.0, 5.5, 6.2]},
+    {"nombre": "Sofia", "notas": [6.8, 6.9, 7.0]},
+    {"nombre": "Pedro", "notas": [3.5, 4.2, 5.0]},
+]
+
+for e in estudiantes:
+    total = 0
+    for nota in e["notas"]:
+        total = total + nota
+    prom = total / len(e["notas"])
+    # Determina el estado y muestra el resultado
+    pass
+</textarea>
+      </div>
+      <div class="output-wrap">
+        <div class="output-bar"><div class="output-dot" id="dot-7"></div><span id="outLabel-7">Listo para ejecutar</span></div>
+        <div class="output-content" id="output-7">▸ Presiona "Ejecutar" para ver el resultado</div>
+      </div>
+      <div class="status-banner" id="status-7"></div>
+      <div class="hints-wrap" id="hints-7">
+        <div class="hint-item"><span>Pista 1</span>Usa <code>if prom >= 4.0: estado = "Aprobado"</code></div>
+        <div class="hint-item"><span>Pista 2</span><code>print(f"{e['nombre']}: {prom:.2f} - {estado}")</code></div>
+      </div>
+      <div class="solution-wrap" id="sol-7">
+        <pre><code>estudiantes = [
+    {"nombre": "Ana",   "notas": [6.5, 5.8, 7.0]},
+    {"nombre": "Luis",  "notas": [4.0, 5.5, 6.2]},
+    {"nombre": "Sofia", "notas": [6.8, 6.9, 7.0]},
+    {"nombre": "Pedro", "notas": [3.5, 4.2, 5.0]},
+]
+
+for e in estudiantes:
+    total = 0
+    for nota in e["notas"]:
+        total = total + nota
+    prom = total / len(e["notas"])
+    estado = "Aprobado" if prom >= 4.0 else "Reprobado"
+    print(f"{e['nombre']}: {prom:.2f} - {estado}")</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ S8: CSV ═══════════════ -->
+<div class="section" id="s8">
+  <div class="section-header">
+    <div class="section-icon">📄</div>
+    <div><h2>Archivos & CSV <span class="tag tag-green">open()</span> <span class="tag tag-green">split()</span></h2>
+    <p>Leer, limpiar y procesar datos desde texto</p></div>
+    <div class="xp-badge" id="xpb8">+100 XP</div>
+  </div>
+
+  <div class="theory">
+    <h3>Concepto Clave</h3>
+    <p>Usa <code>with open("archivo.csv", "r", encoding="utf-8") as f:</code> para leer archivos. Limpia las líneas con <code>.strip()</code> para eliminar <code>\n</code> y separa con <code>.split(",")</code>. Todo lo leído llega como <code>str</code> — convierte con <code>int()</code> o <code>float()</code>.</p>
+  </div>
+
+  <p style="font-size:.85rem;color:var(--muted);margin-bottom:12px">El archivo virtual <code>notas.csv</code> ya está cargado en memoria:</p>
+  <table class="csv-table">
+    <tr><th>nombre</th><th>edad</th><th>nota</th></tr>
+    <tr><td>Ana</td><td>20</td><td>6.5</td></tr>
+    <tr><td>Luis</td><td>22</td><td>4.2</td></tr>
+    <tr><td>Sofia</td><td>19</td><td>5.8</td></tr>
+    <tr><td>Pedro</td><td>21</td><td>3.5</td></tr>
+  </table>
+
+  <div class="challenge" id="ch8" style="margin-top:16px">
+    <div class="challenge-body">
+      <h3>🎯 Desafío — Procesar CSV en memoria</h3>
+      <p>Procesa el string CSV, salta el encabezado, y para cada estudiante imprime su estado. Usa <code>.strip()</code> y <code>.split(",")</code>.<br>
+      Esperado: <kbd>Ana: 6.5 → Aprobado</kbd> ... <kbd>Pedro: 3.5 → Reprobado</kbd></p>
+      <div class="editor-wrap">
+        <div class="editor-bar">
+          <div class="editor-dot dot-r"></div><div class="editor-dot dot-y"></div><div class="editor-dot dot-g"></div>
+          <span class="editor-lang">Python — Desafío 8</span>
+          <div class="editor-actions">
+            <button class="btn btn-reset" onclick="resetEditor(8)">↺ Reset</button>
+            <button class="btn btn-hint" onclick="showHint(8)">💡 Pista</button>
+            <button class="btn btn-sol" onclick="showSol(8)">👁 Solución</button>
+            <button class="btn btn-run" onclick="runCode(8)">▶ Ejecutar</button>
+          </div>
+        </div>
+        <textarea class="editor" id="editor-8" spellcheck="false">csv_data = """nombre,edad,nota
+Ana,20,6.5
+Luis,22,4.2
+Sofia,19,5.8
+Pedro,21,3.5"""
+
+lineas = csv_data.strip().split("\n")
+encabezado = lineas[0]  # Saltamos la primera línea
+
+for linea in lineas[1:]:
+    cols = linea.split(",")
+    nombre = cols[0]
+    nota   = float(cols[2])
+    # Determina el estado e imprime
+    pass
+</textarea>
+      </div>
+      <div class="output-wrap">
+        <div class="output-bar"><div class="output-dot" id="dot-8"></div><span id="outLabel-8">Listo para ejecutar</span></div>
+        <div class="output-content" id="output-8">▸ Presiona "Ejecutar" para ver el resultado</div>
+      </div>
+      <div class="status-banner" id="status-8"></div>
+      <div class="hints-wrap" id="hints-8">
+        <div class="hint-item"><span>Pista 1</span><code>estado = "Aprobado" if nota >= 4.0 else "Reprobado"</code></div>
+        <div class="hint-item"><span>Pista 2</span><code>print(f"{nombre}: {nota} → {estado}")</code></div>
+      </div>
+      <div class="solution-wrap" id="sol-8">
+        <pre><code>csv_data = """nombre,edad,nota
+Ana,20,6.5
+Luis,22,4.2
+Sofia,19,5.8
+Pedro,21,3.5"""
+
+lineas = csv_data.strip().split("\n")
+encabezado = lineas[0]
+
+for linea in lineas[1:]:
+    cols   = linea.split(",")
+    nombre = cols[0]
+    nota   = float(cols[2])
+    estado = "Aprobado" if nota >= 4.0 else "Reprobado"
+    print(f"{nombre}: {nota} → {estado}")</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ S9: GRÁFICOS ═══════════════ -->
+<div class="section" id="s9">
+  <div class="section-header">
+    <div class="section-icon">📊</div>
+    <div><h2>Gráficos Interactivos <span class="tag tag-blue">matplotlib</span></h2>
+    <p>Visualiza datos en tiempo real con Chart.js</p></div>
+    <div class="xp-badge" id="xpb9">+100 XP</div>
+  </div>
+
+  <div class="theory">
+    <h3>Concepto Clave</h3>
+    <p>En Python usamos <code>matplotlib.pyplot</code> para crear gráficos. <code>plt.bar(x, y)</code> crea barras, <code>plt.plot(x, y)</code> crea líneas. Siempre usa <code>plt.title()</code>, <code>plt.xlabel()</code>, <code>plt.ylabel()</code> para etiquetas claras.</p>
+  </div>
+
+  <div class="challenge" id="ch9">
+    <div class="challenge-body">
+      <h3>🎯 Desafío — Constructor de Gráfico Interactivo</h3>
+      <p>Agrega datos de estudiantes y genera el gráfico en tiempo real. Así funciona matplotlib en Python. Cuando el gráfico se vea correcto, ¡marca como completado!</p>
+
+      <div class="chart-controls">
+        <div class="ctrl-group">
+          <label>Nombre del estudiante</label>
+          <input type="text" id="chartName" placeholder="ej: Ana" maxlength="20">
+        </div>
+        <div class="ctrl-group">
+          <label>Nota (1.0 – 7.0)</label>
+          <input type="number" id="chartNota" min="1" max="7" step="0.1" value="5.5">
+        </div>
+        <div class="ctrl-group">
+          <label>Tipo de gráfico</label>
+          <select id="chartType" onchange="updateChart()">
+            <option value="bar">Barras</option>
+            <option value="line">Líneas</option>
+            <option value="radar">Radar</option>
+          </select>
+        </div>
+        <div class="ctrl-group" style="display:flex;align-items:flex-end;gap:8px">
+          <button class="btn btn-run" style="flex:1" onclick="addChartData()">+ Agregar</button>
+          <button class="btn btn-reset" onclick="resetChart()">↺ Limpiar</button>
+        </div>
+      </div>
+
+      <div id="codePreview" style="margin-bottom:12px;padding:12px 16px;background:#0d1117;border:1px solid var(--border);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#a5d6ff;white-space:pre;overflow-x:auto">import matplotlib.pyplot as plt
+
+nombres = []
+notas   = []
+
+plt.bar(nombres, notas, color='skyblue')
+plt.title("Notas del Curso")
+plt.ylim(1, 7)
+plt.show()</div>
+
+      <div class="chart-box">
+        <canvas id="myChart"></canvas>
+        <p style="text-align:center;color:var(--muted);font-size:.8rem;margin-top:8px" id="chartEmpty">Agrega al menos un estudiante para ver el gráfico</p>
+      </div>
+
+      <button class="btn btn-run" style="margin-top:16px;width:100%;padding:12px" onclick="completeChart()" id="chartCompleteBtn" disabled>
+        ✓ He entendido los gráficos — Completar desafío (+100 XP)
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- COMPLETION -->
+<div class="completion" id="completionScreen">
+  <span class="trophy">🏆</span>
+  <h2>¡Felicitaciones, Pythonista!</h2>
+  <p>Completaste todos los desafíos interactivos</p>
+  <div class="final-xp" id="finalXP">0 XP</div>
+  <p style="color:var(--muted);font-size:.85rem">Desarrollado por Leonardo Valdés · Programación UDP 2026</p>
+</div>
+
+<div class="section" id="s10">
+  <div class="section-header">
+    <div class="section-icon">🧩</div>
+    <div><h2>Combinatorio 1 <span class="tag tag-green">Archivos</span> <span class="tag tag-orange">Dicts</span> <span class="tag tag-blue">Lambda</span></h2>
+    <p>El complot del casino y la inflación</p></div>
+    <div class="xp-badge" id="xpb10">+100 XP</div>
+  </div>
+
+  <div class="theory">
+    <h3>Concepto Clave</h3>
+    <p>Los problemas reales combinan múltiples herramientas. Debes procesar colecciones de datos crudos, estructurarlos en diccionarios complejos de tipo <code>{llave: {subllave: valor}}</code>, aplicar lógica analítica usando funciones personalizadas con acumuladores iterativos y finalmente filtrar eficientemente usando expresiones <code>lambda</code> con la función <code>filter()</code>.</p>
+  </div>
+
+  <div class="challenge" id="ch10">
+    <div class="challenge-body">
+      <h3>🎯 Desafío — Procesamiento de Precios e Inflación</h3>
+      <p>Procesa el texto del CSV simulado, genera el diccionario estructurado, calcula los promedios por categoría sin usar <code>sum()</code> e identifica los productos caros (> 3000) mediante una función lambda.</p>
+      <div class="editor-wrap">
+        <div class="editor-bar">
+          <div class="editor-dot dot-r"></div><div class="editor-dot dot-y"></div><div class="editor-dot dot-g"></div>
+          <span class="editor-lang">Python — Desafío 10</span>
+          <div class="editor-actions">
+            <button class="btn btn-reset" onclick="resetEditor(10)">↺ Reset</button>
+            <button class="btn btn-hint" onclick="showHint(10)">💡 Pista</button>
+            <button class="btn btn-sol" onclick="showSol(10)">👁 Solución</button>
+            <button class="btn btn-run" onclick="runCode(10)">▶ Ejecutar</button>
+          </div>
+        </div>
+        <textarea class="editor" id="editor-10" spellcheck="false"># CSV simulado para compatibilidad del navegador
+csv_data = """local;producto;precio_antiguo;precio_nuevo;categoria
+Central;Arepa;1200;1800;Rapida
+Central;Completo;2000;3500;Rapida
+Casino;Almuerzo;3200;4500;Menu
+Casino;Ensalada;2500;2800;Saludable"""
+
+# 1. Lectura y Estructuración
+diccionario = {}
+lineas = csv_data.strip().split("\n")[1:]
+
+for linea in lineas:
+    cols = linea.split(";")
+    prod = cols[1]
+    # Guarda local, precio_nuevo (numérico) y categoria
+    pass
+
+# 2. Análisis con Funciones
+def promedio_por_categoria(dct):
+    # Calcula el precio nuevo promedio de cada categoría sin usar sum()
+    pass
+
+# 3. Filtro Lambda (productos con precio_nuevo > 3000)
+# productos_caros = list(filter(lambda ... ))
+
+# Imprime tus resultados para validar
+print(promedio_por_categoria(diccionario))
+print(sorted(productos_caros))
+</textarea>
+      </div>
+      <div class="output-wrap">
+        <div class="output-bar"><div class="output-dot" id="dot-10"></div><span id="outLabel-10">Listo para ejecutar</span></div>
+        <div class="output-content" id="output-10">▸ Presiona "Ejecutar" para ver el resultado</div>
+      </div>
+      <div class="status-banner" id="status-10"></div>
+      <div class="hints-wrap" id="hints-10">
+        <div class="hint-item"><span>Pista 1</span>Para guardar de forma anidada usa: <code>diccionario[prod] = {"local": cols[0], "precio_nuevo": int(cols[3]), "categoria": cols[4]}</code></div>
+        <div class="hint-item"><span>Pista 2</span>En la función, agrupa los precios por categoría en listas o calcula totales dinámicamente con un ciclo manual <code>for p, datos in dct.items():</code>. Recuerda no usar <code>sum()</code>.</div>
+        <div class="hint-item"><span>Pista 3</span>El filtro lambda opera sobre las llaves del diccionario: <code>filter(lambda p: dct[p]["precio_nuevo"] > 3000, dct)</code>.</div>
+      </div>
+      <div class="solution-wrap" id="sol-10">
+        <pre><code>diccionario = {}
+lineas = csv_data.strip().split("\n")[1:]
+for linea in lineas:
+    cols = linea.split(";")
+    diccionario[cols[1]] = {"local": cols[0], "precio_nuevo": int(cols[3]), "categoria": cols[4]}
+
+def promedio_por_categoria(dct):
+    cats = {}
+    for p, d in dct.items():
+        cat = d["categoria"]
+        if cat not in cats:
+            cats[cat] = []
+        cats[cat].append(d["precio_nuevo"])
+    
+    promedios = {}
+    for cat, precios in cats.items():
+        total = 0
+        for precio in precios:
+            total += precio
+        promedios[cat] = total / len(precios)
+    return promedios
+
+productos_caros = list(filter(lambda p: diccionario[p]["precio_nuevo"] > 3000, diccionario))
+
+print(promedio_por_categoria(diccionario))
+print(sorted(productos_caros))</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="s11">
+  <div class="section-header">
+    <div class="section-icon">🚂</div>
+    <div><h2>Combinatorio 2 <span class="tag tag-orange">Anidadas</span> <span class="tag tag-purple">Tuplas</span> <span class="tag tag-green">Búsqueda</span></h2>
+    <p>El rescate del Ayudante A en la locomotora</p></div>
+    <div class="xp-badge" id="xpb11">+100 XP</div>
+  </div>
+
+  <div class="theory">
+    <h3>Concepto Clave</h3>
+    <p>Recorrer estructuras complejas anidadas requiere desglosar diccionarios internos mediante bucles. Al buscar un elemento mínimo manualmente, debes inicializar variables de referencia con el primer elemento de la colección e ir comparando secuencialmente cada valor sin depender de funciones integradas como <code>min()</code> o <code>max()</code>.</p>
+  </div>
+
+  <div class="challenge" id="ch11">
+    <div class="challenge-body">
+      <h3>🎯 Desafío — Localizar el Escondite en el Tren</h3>
+      <p>Calcula el total de animales por vagón guardándolos en tuplas dentro de una lista, recorre la lista manualmente para hallar el vagón con menor población e imprime el veredicto final.</p>
+      <div class="editor-wrap">
+        <div class="editor-bar">
+          <div class="editor-dot dot-r"></div><div class="editor-dot dot-y"></div><div class="editor-dot dot-g"></div>
+          <span class="editor-lang">Python — Desafío 11</span>
+          <div class="editor-actions">
+            <button class="btn btn-reset" onclick="resetEditor(11)">↺ Reset</button>
+            <button class="btn btn-hint" onclick="showHint(11)">💡 Pista</button>
+            <button class="btn btn-sol" onclick="showSol(11)">👁 Solución</button>
+            <button class="btn btn-run" onclick="runCode(11)">▶ Ejecutar</button>
+          </div>
+        </div>
+        <textarea class="editor" id="editor-11" spellcheck="false">tren = {
+    "Vagon 0": {"leon": 2, "cebra": 2},
+    "Vagon 1": {"pinguino": 5, "jirafa": 7},
+    "Vagon 2": {"raton": 1, "gato": 2}
+}
+
+def calcular_totales(diccionario_tren):
+    lista_totales = []
+    # Retorna una lista de tuplas [("Vagon X", total_animales), ...]
+    pass
+    return lista_totales
+
+def buscar_ayudante(lista_totales):
+    # Encuentra manualmente el nombre del vagón con menor cantidad de animales
+    pass
+
+# Llamadas a funciones y lógicas de impresión
+totales = calcular_totales(tren)
+vagon_escondite = buscar_ayudante(totales)
+
+# Encuentra la cantidad total del vagón seleccionado para evaluar la condición
+total_animales_escondite = 0
+for vagon, cant in totales:
+    if vagon == vagon_escondite:
+        total_animales_escondite = cant
+
+# Imprime los mensajes condicionales aquí
+</textarea>
+      </div>
+      <div class="output-wrap">
+        <div class="output-bar"><div class="output-dot" id="dot-11"></div><span id="outLabel-11">Listo para ejecutar</span></div>
+        <div class="output-content" id="output-11">▸ Presiona "Ejecutar" para ver el resultado</div>
+      </div>
+      <div class="status-banner" id="status-11"></div>
+      <div class="hints-wrap" id="hints-11">
+        <div class="hint-item"><span>Pista 1</span>En <code>calcular_totales</code> itera usando <code>for vagon, animales in diccionario_tren.items():</code> y suma las cantidades con un acumulador interno antes de añadir la tupla.</div>
+        <div class="hint-item"><span>Pista 2</span>Para buscar el mínimo manual, define <code>menor_vagon = lista_totales[0][0]</code> y <code>min_cant = lista_totales[0][1]</code>. Luego compara los demás elementos en un ciclo <code>for</code>.</div>
+        <div class="hint-item"><span>Pista 3</span>Recuerda la condición: si la cantidad de animales del vagón encontrado es estrictamente mayor a 5 imprime <code>Misión fallida, el ayudante A colapsó</code>, de lo contrario <code>Ayudante encontrado en el [Nombre del Vagón]</code>.</div>
+      </div>
+      <div class="solution-wrap" id="sol-11">
+        <pre><code>def calcular_totales(diccionario_tren):
+    lista_totales = []
+    for vagon, animales in diccionario_tren.items():
+        total = 0
+        for cant in animales.values():
+            total += cant
+        lista_totales.append((vagon, total))
+    return lista_totales
+
+def buscar_ayudante(lista_totales):
+    menor_vagon = lista_totales[0][0]
+    min_cant = lista_totales[0][1]
+    for vagon, total in lista_totales:
+        if total < min_cant:
+            min_cant = total
+            menor_vagon = vagon
+    return menor_vagon
+
+totales = calcular_totales(tren)
+vagon_escondite = buscar_ayudante(totales)
+
+total_animales_escondite = 0
+for vagon, cant in totales:
+    if vagon == vagon_escondite:
+        total_animales_escondite = cant
+
+if total_animales_escondite > 5:
+    print("Misión fallida, el ayudante A colapsó")
+else:
+    print(f"Ayudante encontrado en el {vagon_escondite}")</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="s12">
+  <div class="section-header">
+    <div class="section-icon">🏃</div>
+    <div><h2>Combinatorio 3 <span class="tag tag-blue">Conversión</span> <span class="tag tag-green">Filtros</span> <span class="tag tag-purple">Formatos</span></h2>
+    <p>La Maratón de Kanvas y el evaluador implacable</p></div>
+    <div class="xp-badge" id="xpb12">+100 XP</div>
+  </div>
+
+  <div class="theory">
+    <h3>Concepto Clave</h3>
+    <p>El desempaquetado en Python permite que una función devuelva múltiples valores separados por comas (ej. <code>return h, m, s</code>). Al invocar la función, puedes capturar todas las respuestas en una sola línea (ej. <code>horas, mins, segs = convertir_tiempo(t)</code>) facilitando el formateo de reportes.</p>
+  </div>
+
+  <div class="challenge" id="ch12">
+    <div class="challenge-body">
+      <h3>🎯 Desafío — Reporte de Sobrevivientes Digitales</h3>
+      <p>Crea las funciones de conversión analítica y rendimiento académico. Filtra a aquellos estudiantes que entregaron a tiempo (< 3600 segundos) y cuyo rendimiento sea "Azul" para imprimir la alerta de supervivencia.</p>
+      <div class="editor-wrap">
+        <div class="editor-bar">
+          <div class="editor-dot dot-r"></div><div class="editor-dot dot-y"></div><div class="editor-dot dot-g"></div>
+          <span class="editor-lang">Python — Desafío 12</span>
+          <div class="editor-actions">
+            <button class="btn btn-reset" onclick="resetEditor(12)">↺ Reset</button>
+            <button class="btn btn-hint" onclick="showHint(12)">💡 Pista</button>
+            <button class="btn btn-sol" onclick="showSol(12)">👁 Solución</button>
+            <button class="btn btn-run" onclick="runCode(12)">▶ Ejecutar</button>
+          </div>
+        </div>
+        <textarea class="editor" id="editor-12" spellcheck="false">estudiantes = [
+    {"nombre": "mechon 1", "tiempo_seg": 3500, "notas": [5.5, 4.8, 6.0, 5.9]},
+    {"nombre": "mechon 2", "tiempo_seg": 4105, "notas": [4.0, 3.2, 3.8, 4.1]},
+    {"nombre": "mechon 3", "tiempo_seg": 3400, "notas": [3.5, 3.8, 2.5, 4.0]}
+]
+
+def convertir_tiempo(segundos):
+    # Retorna horas, minutos y segundos equivalentes
+    pass
+
+def analizar_rendimiento(lista):
+    resultado = {}
+    # Llave: nombre, Valor: tupla (promedio, "Azul"/"Rojo") sin usar sum()
+    pass
+    return resultado
+
+# Código principal
+rendimiento = analizar_rendimiento(estudiantes)
+
+for e in estudiantes:
+    nombre = e["nombre"]
+    tiempo = e["tiempo_seg"]
+    prom, estado = rendimiento[nombre]
+    
+    # Evalúa si tiempo es menor a 3600 Y el estado es "Azul"
+    # Usa convertir_tiempo(tiempo) e imprime la plantilla exacta
+    pass
+</textarea>
+      </div>
+      <div class="output-wrap">
+        <div class="output-bar"><div class="output-dot" id="dot-12"></div><span id="outLabel-12">Listo para ejecutar</span></div>
+        <div class="output-content" id="output-12">▸ Presiona "Ejecutar" para ver el resultado</div>
+      </div>
+      <div class="status-banner" id="status-12"></div>
+      <div class="hints-wrap" id="hints-12">
+        <div class="hint-item"><span>Pista 1</span>Para el tiempo usa divisiones enteras <code>//</code> y residuos <code>%</code>: <code>horas = segundos // 3600</code>, <code>minutos = (segundos % 3600) // 60</code>.</div>
+        <div class="hint-item"><span>Pista 2</span>En <code>analizar_rendimiento</code>, recorre las notas en un bucle acumulando el valor total, divídelo por el largo de la lista y asigna "Azul" si el resultado es igual o superior a 4.0.</div>
+        <div class="hint-item"><span>Pista 3</span>El formato de salida esperado debe seguir el patrón estricto: <code>print(f"{nombre} sobrevive. Tiempo: {h}:{m}:{s}. Promedio: {prom}")</code></div>
+      </div>
+      <div class="solution-wrap" id="sol-12">
+        <pre><code>def convertir_tiempo(segundos):
+    horas = segundos // 3600
+    resto = segundos % 3600
+    minutos = resto // 60
+    segs = resto % 60
+    return horas, minutes, segs
+
+def analizar_rendimiento(lista):
+    resultado = {}
+    for e in lista:
+        total = 0
+        for nota in e["notas"]:
+            total += nota
+        prom = total / len(e["notas"])
+        estado = "Azul" if prom >= 4.0 else "Rojo"
+        resultado[e["nombre"]] = (prom, estado)
+    return resultado
+
+rendimiento = analizar_rendimiento(estudiantes)
+
+for e in estudiantes:
+    nombre = e["nombre"]
+    tiempo = e["tiempo_seg"]
+    prom, estado = rendimiento[nombre]
+    
+    if tiempo < 3600 and estado == "Azul":
+        h, m, s = convertir_tiempo(tiempo)
+        print(f"{nombre} sobrevive. Tiempo: {h}:{m}:{s}. Promedio: {prom}")</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- ── SCRIPTS ── -->
+<script src="https://skulpt.org/js/skulpt.min.js"></script>
+<script src="https://skulpt.org/js/skulpt-stdlib.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+<script>
+// ── STATE ──
+let xp = 0;
+const totalXP = 1200;
+const completed = new Set();
+
+// Starter code for each editor
+const starters = {
+  1: `# Escribe tu solución aquí\n# Usa un ciclo for con range()\nfor i in range(1, 11):\n    # Completa esta línea\n    pass\n`,
+  2: `notas = [6.5, 4.2, 5.8, 6.9, 3.7]\n\ntotal = 0\nmaximo = notas[0]\nminimo = notas[0]\n\nfor nota in notas:\n    # Acumula la suma, actualiza maximo y minimo\n    pass\n\n# Calcula promedio y muestra resultados\n`,
+  3: `def es_primo(n):\n    if n < 2:\n        return False\n    # Completa: recorre desde 2 hasta n-1\n    # Si algún número divide a n, no es primo\n\nnumeros = [2, 3, 4, 10, 13, 17, 20]\nfor num in numeros:\n    if es_primo(num):\n        print(f"{num} es primo")\n`,
+  4: `inventario = {\n    "manzana": {"precio": 500,  "stock": 50},\n    "pera":    {"precio": 300,  "stock": 30},\n    "uva":     {"precio": 800,  "stock": 20},\n}\n\nfor producto, datos in inventario.items():\n    # Calcula total y muestra el resultado\n    pass\n`,
+  5: `python_devs = {"Ana", "Luis", "Pedro", "Maria"}\njava_devs   = {"Luis", "Carlos", "Maria", "Sofia"}\n\n# Calcula la intersección y la diferencia\nambos       = # ???\nsolo_python = # ???\n\nprint(f"Ambos: {sorted(ambos)}")\nprint(f"Solo Python: {sorted(solo_python)}")\n`,
+  6: `precios = [1000, 2500, 500, 3000, 750]\n\n# Usa lambda y map() para aplicar IVA (x 1.19)\ncon_iva = list(map(  ???  , precios))\n\nfor p in con_iva:\n    print(round(p))\n`,
+  7: `estudiantes = [\n    {"nombre": "Ana",   "notas": [6.5, 5.8, 7.0]},\n    {"nombre": "Luis",  "notas": [4.0, 5.5, 6.2]},\n    {"nombre": "Sofia", "notas": [6.8, 6.9, 7.0]},\n    {"nombre": "Pedro", "notas": [3.5, 4.2, 5.0]},\n]\n\nfor e in estudiantes:\n    total = 0\n    for nota in e["notas"]:\n        total = total + nota\n    prom = total / len(e["notas"])\n    # Determina el estado y muestra el resultado\n    pass\n`,
+  8: `csv_data = """nombre,edad,nota\nAna,20,6.5\nLuis,22,4.2\nSofia,19,5.8\nPedro,21,3.5"""\n\nlineas = csv_data.strip().split("\\n")\nencabezado = lineas[0]  # Saltamos la primera línea\n\nfor linea in lineas[1:]:\n    cols = linea.split(",")\n    nombre = cols[0]\n    nota   = float(cols[2])\n    # Determina el estado e imprime\n    pass\n`,
+  10: `# CSV simulado para compatibilidad del navegador\ncsv_data = """local;producto;precio_antiguo;precio_nuevo;categoria\nCentral;Arepa;1200;1800;Rapida\nCentral;Completo;2000;3500;Rapida\nCasino;Almuerzo;3200;4500;Menu\nCasino;Ensalada;2500;2800;Saludable"""\n\ndiccionario = {}\nlineas = csv_data.strip().split("\\n")[1:]\n\nfor linea in lineas:\n    cols = linea.split(";")\n    prod = cols[1]\n    pass\n\ndef promedio_por_categoria(dct):\n    pass\n\nprint(promedio_por_categoria(diccionario))\nprint(sorted(productos_caros))\n`,
+  11: `tren = {\n    "Vagon 0": {"leon": 2, "cebra": 2},\n    "Vagon 1": {"pinguino": 5, "jirafa": 7},\n    "Vagon 2": {"raton": 1, "gato": 2}\n}\n\ndef calcular_totales(diccionario_tren):\n    lista_totales = []\n    pass\n    return lista_totales\n\ndef buscar_ayudante(lista_totales):\n    pass\n\ntotales = calcular_totales(tren)\nvagon_escondite = buscar_ayudante(totales)\n`,
+  12: `estudiantes = [\n    {"nombre": "mechon 1", "tiempo_seg": 3500, "notas": [5.5, 4.8, 6.0, 5.9]},\n    {"nombre": "mechon 2", "tiempo_seg": 4105, "notas": [4.0, 3.2, 3.8, 4.1]},\n    {"nombre": "mechon 3", "tiempo_seg": 3400, "notas": [3.5, 3.8, 2.5, 4.0]}\n]\n\ndef convertir_tiempo(segundos):\n    pass\n\ndef analizar_rendimiento(lista):\n    resultado = {}\n    pass\n    return resultado\n\nrendimiento = analizar_rendimiento(estudiantes)\n`,
+};
+
+// Test functions: receive output string, return {pass, msg}
+const tests = {
+  1: (out) => {
+    const lines = out.trim().split('\n');
+    const ok = lines.some(l => l.includes('7 x 1 = 7')) && lines.some(l => l.includes('7 x 10 = 70'));
+    return ok ? {pass:true,msg:'¡Correcto! La tabla del 7 se imprimió perfectamente.'} : {pass:false,msg:'Revisa el formato. Debe ser "7 x 1 = 7", "7 x 2 = 14" ... hasta "7 x 10 = 70".'};
+  },
+  2: (out) => {
+    const ok = out.includes('5.42') && out.includes('6.9') && out.includes('3.7');
+    return ok ? {pass:true,msg:'¡Perfecto! Calculaste promedio, máximo y mínimo correctamente.'} : {pass:false,msg:'Verifica los valores: Promedio ≈ 5.42, Máximo = 6.9, Mínimo = 3.7.'};
+  },
+  3: (out) => {
+    const ok = out.includes('2 es primo') && out.includes('3 es primo') && out.includes('13 es primo') && out.includes('17 es primo') && !out.includes('4 es primo') && !out.includes('10 es primo');
+    return ok ? {pass:true,msg:'¡Excelente! La función es_primo funciona correctamente.'} : {pass:false,msg:'Revisa: 2,3,13,17 son primos. 4,10,20 no lo son.'};
+  },
+  4: (out) => {
+    const ok = out.includes('25000') && out.includes('9000') && out.includes('16000');
+    return ok ? {pass:true,msg:'¡Correcto! manzana=$25000, pera=$9000, uva=$16000.'} : {pass:false,msg:'Revisa: manzana=500×50=25000, pera=300×30=9000, uva=800×20=16000.'};
+  },
+  5: (out) => {
+    const ok = out.includes('Luis') && out.includes('Maria') && out.includes('Ana') && out.includes('Pedro');
+    return ok ? {pass:true,msg:'¡Bien! Operaciones de conjuntos aplicadas correctamente.'} : {pass:false,msg:'Revisa: la intersección debe incluir Luis y Maria. La diferencia: Ana y Pedro.'};
+  },
+  6: (out) => {
+    const ok = out.includes('1190') && out.includes('2975') && out.includes('595');
+    return ok ? {pass:true,msg:'¡Lambda y map dominados! Los precios con IVA son correctos.'} : {pass:false,msg:'Verifica: 1000×1.19=1190, 2500×1.19=2975, 500×1.19=595.'};
+  },
+  7: (out) => {
+    const ok = out.includes('Ana') && out.includes('Aprobado') && out.includes('Pedro') && out.includes('Reprobado') && (out.includes('6.43') || out.includes('6.4'));
+    return ok ? {pass:true,msg:'¡Perfecto! Estructuras anidadas procesadas correctamente.'} : {pass:false,msg:'Verifica: Ana≈6.43 Aprobado, Pedro≈4.23 Aprobado, etc.'};
+  },
+  8: (out) => {
+    const ok = out.includes('Ana') && out.includes('Aprobado') && out.includes('Pedro') && out.includes('Reprobado');
+    return ok ? {pass:true,msg:'¡CSV procesado! Parseo de texto dominado.'} : {pass:false,msg:'Revisa: Ana(6.5)→Aprobado, Pedro(3.5)→Reprobado.'};
+  },
+  10: (out) => {
+    const ok = out.includes('2650') && out.includes('Almuerzo') && out.includes('Completo');
+    return ok ? {pass:true,msg:'¡Impresionante! El procesamiento de inflación y promedios funciona perfecto.'} : {pass:false,msg:'Verifica que el promedio de Rapida sea 2650.0 y los productos filtrados sean Almuerzo y Completo.'};
+  },
+  11: (out) => {
+    const ok = out.includes('Ayudante encontrado en el Vagon 2');
+    return ok ? {pass:true,msg:'¡Rescate completado exitosamente! Encontraste al ayudante A en una zona segura.'} : {pass:false,msg:'Revisa la búsqueda manual de mínimos. El ayudante debió ser hallado exitosamente en el Vagon 2.'};
+  },
+  12: (out) => {
+    const ok = out.includes('mechon 1 sobrevive') && out.includes('5.55');
+    return ok ? {pass:true,msg:'¡Espectacular! Lograste procesar la maratón horaria y calcular el rendimiento.'} : {pass:false,msg:'Revisa que se imprima la supervivencia de mechon 1 indicando su promedio exacto (5.55).'};
+  },
+};
+
+// ── SKULPT ──
+function builtinRead(x) {
+  if (Sk.builtinFiles && Sk.builtinFiles.files[x]) return Sk.builtinFiles.files[x];
+  throw "File not found: '" + x + "'";
+}
+
+function runCode(id) {
+  const code = document.getElementById('editor-' + id).value;
+  const outEl = document.getElementById('output-' + id);
+  const dot   = document.getElementById('dot-' + id);
+  const lbl   = document.getElementById('outLabel-' + id);
+
+  outEl.textContent = '';
+  outEl.className = 'output-content';
+  dot.className = 'output-dot running';
+  lbl.textContent = 'Ejecutando…';
+
+  let outputText = '';
+
+  Sk.configure({
+    output(text) { outputText += text; outEl.textContent += text; },
+    read: builtinRead,
+    __future__: Sk.python3,
+    execLimit: 5000,
+  });
+
+  Sk.misceval.asyncToPromise(() =>
+    Sk.importMainWithBody('<stdin>', false, code, true)
+  ).then(() => {
+    dot.className = 'output-dot ok';
+    lbl.textContent = 'Ejecutado';
+    evaluate(id, outputText);
+  }).catch(err => {
+    const msg = err.toString();
+    outEl.innerHTML += `<span class="out-err">\n${msg}</span>`;
+    dot.className = 'output-dot err';
+    lbl.textContent = 'Error de Python';
+    showStatus(id, false, 'Error: ' + msg.split('\n')[0]);
+  });
+}
+
+function evaluate(id, output) {
+  const result = tests[id](output);
+  showStatus(id, result.pass, result.msg);
+  if (result.pass && !completed.has(id)) {
+    completed.add(id);
+    awardXP(100, id);
+  } else if (!result.pass) {
+    document.getElementById('ch' + id).classList.add('failed-anim');
+    setTimeout(() => document.getElementById('ch' + id).classList.remove('failed-anim'), 500);
+  }
+}
+
+function showStatus(id, pass, msg) {
+  const el = document.getElementById('status-' + id);
+  el.style.display = 'flex';
+  el.className = 'status-banner ' + (pass ? 'pass' : 'fail');
+  el.innerHTML = (pass ? '✅' : '❌') + ' ' + msg;
+}
+
+function awardXP(amount, id) {
+  xp += amount;
+  updateXPDisplay();
+  if (id) {
+    const badge = document.getElementById('xpb' + id);
+    if (badge) { badge.classList.add('earned'); badge.textContent = '✓ +' + amount + ' XP'; }
+    const nc = document.getElementById('nc' + id);
+    if (nc) nc.textContent = '✓';
+    const nav = nc ? nc.closest('.nav-item') : null;
+    if (nav) nav.classList.add('done');
+    document.getElementById('ch' + id).classList.add('passed');
+  }
+  celebrateSmall();
+  document.getElementById('heroCompleted').textContent = completed.size;
+  if (completed.size === 12) showCompletion();
+}
+
+function updateXPDisplay() {
+  const pct = Math.min(100, Math.round(xp / totalXP * 100));
+  document.getElementById('xpDisplay').textContent = '⚡ ' + xp + ' / ' + totalXP + ' XP';
+  document.getElementById('globalProgress').style.width = pct + '%';
+  document.getElementById('heroXP').textContent = xp;
+}
+
+function celebrateSmall() {
+  if (typeof confetti !== 'undefined') {
+    confetti({ particleCount: 60, spread: 70, origin: { y: 0.7 }, colors: ['#58a6ff','#3fb950','#f6c90e','#bc8cff'] });
+  }
+}
+
+function showCompletion() {
+  const el = document.getElementById('completionScreen');
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('finalXP').textContent = xp + ' XP';
+  if (typeof confetti !== 'undefined') {
+    confetti({ particleCount: 200, spread: 160, origin: { y: 0.5 } });
+  }
+}
+
+// Hint toggle (cycles through revealed hints)
+const hintCounters = {};
+function showHint(id) {
+  const wrap = document.getElementById('hints-' + id);
+  wrap.style.display = 'block';
+  const items = wrap.querySelectorAll('.hint-item');
+  const shown = hintCounters[id] || 0;
+  if (shown < items.length) {
+    items[shown].style.display = 'block';
+    hintCounters[id] = shown + 1;
+  }
+  // Hide items not yet revealed
+  items.forEach((item, i) => { item.style.display = i < (hintCounters[id] || 0) ? 'block' : 'none'; });
+}
+
+function showSol(id) {
+  const sol = document.getElementById('sol-' + id);
+  sol.style.display = sol.style.display === 'block' ? 'none' : 'block';
+}
+
+function resetEditor(id) {
+  document.getElementById('editor-' + id).value = starters[id];
+  document.getElementById('output-' + id).textContent = '▸ Presiona "Ejecutar" para ver el resultado';
+  const dot = document.getElementById('dot-' + id);
+  dot.className = 'output-dot';
+  document.getElementById('outLabel-' + id).textContent = 'Listo para ejecutar';
+  const st = document.getElementById('status-' + id);
+  st.style.display = 'none';
+}
+
+// ── TAB KEY in editors ──
+document.querySelectorAll('textarea.editor').forEach(ta => {
+  ta.addEventListener('keydown', e => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const s = ta.selectionStart, end = ta.selectionEnd;
+      ta.value = ta.value.substring(0, s) + '    ' + ta.value.substring(end);
+      ta.selectionStart = ta.selectionEnd = s + 4;
+    }
+  });
+});
+
+// ── CHART SECTION ──
+let chartInstance = null;
+const chartNames = [];
+const chartNotas = [];
+
+function initChart() {
+  const ctx = document.getElementById('myChart').getContext('2d');
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: chartNames,
+      datasets: [{
+        label: 'Notas',
+        data: chartNotas,
+        backgroundColor: ['#58a6ff','#3fb950','#f6c90e','#bc8cff','#ffa657','#f85149'],
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'Nota: ' + ctx.parsed.y } } },
+      scales: {
+        y: { min: 1, max: 7, ticks: { color: '#8b949e' }, grid: { color: '#21262d' } },
+        x: { ticks: { color: '#8b949e' }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function addChartData() {
+  const name = document.getElementById('chartName').value.trim();
+  const nota = parseFloat(document.getElementById('chartNota').value);
+  if (!name) { alert('Ingresa un nombre'); return; }
+  if (isNaN(nota) || nota < 1 || nota > 7) { alert('Nota debe ser entre 1.0 y 7.0'); return; }
+
+  chartNames.push(name);
+  chartNotas.push(nota);
+  document.getElementById('chartName').value = '';
+
+  if (!chartInstance) initChart();
+  const type = document.getElementById('chartType').value;
+  chartInstance.config.type = type;
+  chartInstance.data.labels = [...chartNames];
+  chartInstance.data.datasets[0].data = [...chartNotas];
+  chartInstance.update();
+
+  document.getElementById('chartEmpty').style.display = 'none';
+  updateCodePreview();
+
+  if (chartNames.length >= 2) {
+    document.getElementById('chartCompleteBtn').disabled = false;
+  }
+}
+
+function updateChart() {
+  if (!chartInstance) return;
+  const type = document.getElementById('chartType').value;
+  chartInstance.config.type = type;
+  chartInstance.update();
+  updateCodePreview();
+}
+
+function updateCodePreview() {
+  const type = document.getElementById('chartType').value;
+  const names = JSON.stringify(chartNames);
+  const notas = JSON.stringify(chartNotas);
+  const fnCall = type === 'bar' ? `plt.bar(nombres, notas, color='skyblue')` : `plt.plot(nombres, notas, marker='o')`;
+  document.getElementById('codePreview').textContent =
+`import matplotlib.pyplot as plt
+
+nombres = ${names}
+notas   = ${notas}
+
+${fnCall}
+plt.title("Notas del Curso")
+plt.ylim(1, 7)
+plt.show()`;
+}
+
+function resetChart() {
+  chartNames.length = 0;
+  chartNotas.length = 0;
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  document.getElementById('chartEmpty').style.display = 'block';
+  document.getElementById('chartCompleteBtn').disabled = true;
+  updateCodePreview();
+}
+
+function completeChart() {
+  if (!completed.has(9)) {
+    completed.add(9);
+    awardXP(100, 9);
+  }
+}
+
+// Initialize hints (hide all)
+document.querySelectorAll('.hint-item').forEach(el => el.style.display = 'none');
+updateCodePreview();
+</script>
+</body>
+</html>
